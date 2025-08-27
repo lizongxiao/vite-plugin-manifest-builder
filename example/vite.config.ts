@@ -9,9 +9,12 @@ export default defineConfig({
       targetScripts: ["content"],
       manifestOverrides: {
         description: "这是一个通过构建时动态修改的扩展描述",
-        version: "1.0.1",
         name: "动态配置的扩展名称",
       },
+      // 启用版本号自增功能
+      autoIncrementVersion: true,
+      versionIncrementType: 'patch',
+      versionIncrementStep: 1,
     }) as Plugin,
   ],
   build: {

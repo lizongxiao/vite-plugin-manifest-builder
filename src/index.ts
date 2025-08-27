@@ -15,6 +15,56 @@ export interface ManifestBuilderPluginOptions {
   manifestSource?: string;
   /** 要替换的 manifest 字段，支持嵌套对象 */
   manifestOverrides?: Record<string, any>;
+  /** 是否启用版本号自增 */
+  autoIncrementVersion?: boolean;
+  /** 版本号自增步长，默认为 1 */
+  versionIncrementStep?: number;
+  /** 版本号自增类型：'patch' | 'minor' | 'major'，默认为 'patch' */
+  versionIncrementType?: 'patch' | 'minor' | 'major';
+}
+
+/**
+ * 解析版本号字符串为数字数组
+ * @param version 版本号字符串，如 "1.2.3"
+ * @returns 版本号数字数组 [major, minor, patch]
+ */
+function parseVersion(version: string): [number, number, number] {
+  const parts = version.split('.').map(part => parseInt(part, 10) || 0);
+  return [parts[0] || 0, parts[1] || 0, parts[2] || 0];
+}
+
+/**
+ * 格式化版本号数组为字符串
+ * @param versionParts 版本号数字数组 [major, minor, patch]
+ * @returns 版本号字符串
+ */
+function formatVersion(versionParts: [number, number, number]): string {
+  return versionParts.join('.');
+}
+
+/**
+ * 自增版本号
+ * @param currentVersion 当前版本号
+ * @param incrementType 自增类型
+ * @param step 自增步长
+ * @returns 新的版本号
+ */
+function incrementVersion(
+  currentVersion: string,
+  incrementType: 'patch' | 'minor' | 'major' = 'patch',
+  step: number = 1
+): string {
+  const [major, minor, patch] = parseVersion(currentVersion);
+  
+  switch (incrementType) {
+    case 'major':
+      return formatVersion([major + step, 0, 0]);
+    case 'minor':
+      return formatVersion([major, minor + step, 0]);
+    case 'patch':
+    default:
+      return formatVersion([major, minor, patch + step]);
+  }
 }
 
 /**
@@ -33,7 +83,9 @@ export interface ManifestBuilderPluginOptions {
  *     cssInjectPlugin({
  *       debug: true,
  *       cssPattern: /\.(css|scss|less)$/,
- *       targetScripts: ['content-scripts']
+ *       targetScripts: ['content-scripts'],
+ *       autoIncrementVersion: true,
+ *       versionIncrementType: 'patch'
  *     })
  *   ]
  * })
@@ -48,6 +100,9 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
     manifestName = "manifest.json",
     manifestSource = "manifest.json",
     manifestOverrides = {},
+    autoIncrementVersion = false,
+    versionIncrementStep = 1,
+    versionIncrementType = 'patch',
   } = options;
 
   return {
@@ -82,6 +137,29 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
         // 读取 manifest.json
         const manifestContent = fs.default.readFileSync(manifestPath, "utf-8");
         const manifest = JSON.parse(manifestContent);
+
+        // 处理版本号自增
+        if (autoIncrementVersion && manifest.version) {
+          const oldVersion = manifest.version;
+          const newVersion = incrementVersion(oldVersion, versionIncrementType, versionIncrementStep);
+          
+          if (debug) {
+            console.log(
+              `[vite-plugin-manifest-builder] 版本号自增: ${oldVersion} -> ${newVersion} (类型: ${versionIncrementType}, 步长: ${versionIncrementStep})`
+            );
+          }
+          
+          manifest.version = newVersion;
+          
+          // 如果 manifestOverrides 中也有 version，则覆盖它
+          if (manifestOverrides.version) {
+            if (debug) {
+              console.log(
+                `[vite-plugin-manifest-builder] 警告: manifestOverrides 中的 version 将被自增版本号覆盖`
+              );
+            }
+          }
+        }
 
         // 应用 manifest 字段替换
         if (Object.keys(manifestOverrides).length > 0) {

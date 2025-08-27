@@ -1,7 +1,7 @@
 
 ### 简介
 
-`vite-plugin-manifest-builder` 是一个强大的 Vite 插件，用于动态构建和修改 Chrome 扩展的 `manifest.json` 文件，支持自动 CSS 注入和字段覆盖。
+`vite-plugin-manifest-builder` 是一个强大的 Vite 插件，用于动态构建和修改 Chrome 扩展的 `manifest.json` 文件，支持自动 CSS 注入、字段覆盖和版本号自增。
 
 ### 主要特性
 
@@ -13,6 +13,7 @@
 - 🐛 **调试模式**: 全面的调试和日志记录
 - 📦 **TypeScript 支持**: 完整的 TypeScript 支持和类型定义
 - 🔄 **模块支持**: 支持 CommonJS 和 ESM
+- 🔢 **版本号自增**: 自动递增 manifest.json 中的版本号
 
 ### 快速开始
 
@@ -31,6 +32,10 @@ export default defineConfig({
         version: "1.0.1",
         name: "我的扩展",
       },
+      // 启用版本号自增
+      autoIncrementVersion: true,
+      versionIncrementType: 'patch',
+      versionIncrementStep: 1
     }),
   ],
 });
@@ -46,7 +51,7 @@ export default defineConfig({
 
 # vite-plugin-manifest-builder
 
-A powerful Vite plugin for dynamically building and modifying Chrome Extension `manifest.json` files with automatic CSS injection and field overrides.
+A powerful Vite plugin for dynamically building and modifying Chrome Extension `manifest.json` files with automatic CSS injection, field overrides, and version auto-increment.
 
 ## ✨ Features
 
@@ -58,6 +63,7 @@ A powerful Vite plugin for dynamically building and modifying Chrome Extension `
 - 🐛 **Debug Mode**: Comprehensive debugging and logging
 - 📦 **TypeScript Support**: Full TypeScript support with type definitions
 - 🔄 **Module Support**: Supports both CommonJS and ESM
+- 🔢 **Version Auto-Increment**: Automatically increments version numbers in manifest.json
 
 ## 📦 Installation
 
@@ -103,6 +109,10 @@ export default defineConfig({
         version: "1.0.1",
         name: "My Extension",
       },
+      // Enable version auto-increment
+      autoIncrementVersion: true,
+      versionIncrementType: 'patch',
+      versionIncrementStep: 1
     }),
   ],
 });
@@ -193,13 +203,47 @@ manifestBuilderPlugin({
 });
 ```
 
+#### `autoIncrementVersion?: boolean`
+
+Enable automatic version number increment. Default: `false`
+
+```typescript
+manifestBuilderPlugin({
+  autoIncrementVersion: true, // Enable version auto-increment
+});
+```
+
+#### `versionIncrementType?: 'patch' | 'minor' | 'major'`
+
+Type of version increment. Default: `'patch'`
+
+```typescript
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  versionIncrementType: 'minor', // Increment minor version
+});
+```
+
+#### `versionIncrementStep?: number`
+
+Step size for version increment. Default: `1`
+
+```typescript
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  versionIncrementType: 'patch',
+  versionIncrementStep: 2, // Increment by 2
+});
+```
+
 ## 🔄 How It Works
 
 1. **Build Phase**: Plugin runs during Vite's build process
-2. **Manifest Processing**: Applies `manifestOverrides` to the source manifest
-3. **CSS Discovery**: Finds all CSS files matching the pattern in the output directory
-4. **CSS Injection**: Automatically injects CSS files into content_scripts
-5. **Output Generation**: Writes the final manifest.json to the output directory
+2. **Version Processing**: If enabled, automatically increments the version number
+3. **Manifest Processing**: Applies `manifestOverrides` to the source manifest
+4. **CSS Discovery**: Finds all CSS files matching the pattern in the output directory
+5. **CSS Injection**: Automatically injects CSS files into content_scripts
+6. **Output Generation**: Writes the final manifest.json to the output directory
 
 ## 📝 Examples
 
@@ -223,6 +267,9 @@ export default defineConfig(({ mode }) => {
           description: isDev ? "Development Version" : "Production Version",
           version: "1.0.0",
         },
+        // Only auto-increment version in production
+        autoIncrementVersion: !isDev,
+        versionIncrementType: 'patch',
       }),
     ],
   };
@@ -251,9 +298,49 @@ export default defineConfig(({ mode }) => {
               : "Development Extension",
           version: mode === "production" ? "1.0.0" : "1.0.0-dev",
         },
+        // Auto-increment version with different strategies
+        autoIncrementVersion: mode === "production",
+        versionIncrementType: mode === "production" ? 'minor' : 'patch',
+        versionIncrementStep: mode === "production" ? 1 : 1,
       }),
     ],
   };
+});
+```
+
+### Version Increment Examples
+
+```typescript
+// Example 1: Patch version increment
+// Input: "1.2.3" -> Output: "1.2.4"
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  versionIncrementType: 'patch',
+  versionIncrementStep: 1,
+});
+
+// Example 2: Minor version increment
+// Input: "1.2.3" -> Output: "1.3.0"
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  versionIncrementType: 'minor',
+  versionIncrementStep: 1,
+});
+
+// Example 3: Major version increment
+// Input: "1.2.3" -> Output: "2.0.0"
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  versionIncrementType: 'major',
+  versionIncrementStep: 1,
+});
+
+// Example 4: Custom step increment
+// Input: "1.2.3" -> Output: "1.2.5" (patch + 2)
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  versionIncrementType: 'patch',
+  versionIncrementStep: 2,
 });
 ```
 
@@ -264,6 +351,7 @@ export default defineConfig(({ mode }) => {
 3. **File System**: Minimal file system operations for optimal performance
 4. **Bundle Hook**: Uses `closeBundle` hook to ensure all files are built
 5. **Selective Injection**: Use `targetScripts` to limit CSS injection scope
+6. **Version Processing**: Version increment happens before manifest overrides
 
 ## 🐛 Troubleshooting
 
@@ -290,6 +378,13 @@ export default defineConfig(({ mode }) => {
 1. Check `manifestOverrides` object structure
 2. Verify field names match manifest schema
 3. Enable `debug` mode to see override details
+
+### Version Increment Issues
+
+1. Ensure manifest.json has a valid `version` field
+2. Check version format (should be semantic versioning like "1.2.3")
+3. Verify `versionIncrementType` and `versionIncrementStep` values
+4. Enable `debug` mode to see version increment details
 
 ## 🛠️ Development
 
@@ -343,6 +438,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - Dynamic manifest building
 - Field override support
 - Full TypeScript support
+- Version auto-increment feature
 
 ---
 
