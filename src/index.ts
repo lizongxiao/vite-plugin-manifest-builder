@@ -143,6 +143,11 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
 
         // 处理版本号自增
         let versionUpdated = false;
+        if (debug) {
+          console.log(
+            `[vite-plugin-manifest-builder] 版本号自增检查: autoIncrementVersion=${autoIncrementVersion}, manifest.version=${manifest.version}`
+          );
+        }
         if (autoIncrementVersion && manifest.version) {
           const oldVersion = manifest.version;
           const newVersion = incrementVersion(oldVersion, versionIncrementType, versionIncrementStep);
@@ -163,6 +168,17 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
                 `[vite-plugin-manifest-builder] 警告: manifestOverrides 中的 version 将被自增版本号覆盖`
               );
             }
+          }
+        } else if (debug) {
+          if (!autoIncrementVersion) {
+            console.log(
+              `[vite-plugin-manifest-builder] 版本号自增未启用: autoIncrementVersion=${autoIncrementVersion}`
+            );
+          }
+          if (!manifest.version) {
+            console.log(
+              `[vite-plugin-manifest-builder] manifest.json 中缺少 version 字段`
+            );
           }
         }
 
@@ -300,6 +316,11 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
         }
 
         // 如果版本号被更新且启用了源文件更新，则更新源文件
+        if (debug) {
+          console.log(
+            `[vite-plugin-manifest-builder] 源文件更新检查: versionUpdated=${versionUpdated}, updateSourceFile=${updateSourceFile}, manifestSource存在=${fs.default.existsSync(manifestSource)}`
+          );
+        }
         if (versionUpdated && updateSourceFile && fs.default.existsSync(manifestSource)) {
           if (debug) {
             console.log(
@@ -310,8 +331,23 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
             manifestSource,
             JSON.stringify(manifest, null, 2)
           );
+        } else if (debug) {
+          if (!versionUpdated) {
+            console.log(
+              `[vite-plugin-manifest-builder] 版本号未更新，跳过源文件更新`
+            );
+          }
+          if (!updateSourceFile) {
+            console.log(
+              `[vite-plugin-manifest-builder] 源文件更新未启用: updateSourceFile=${updateSourceFile}`
+            );
+          }
+          if (!fs.default.existsSync(manifestSource)) {
+            console.log(
+              `[vite-plugin-manifest-builder] 源文件不存在: ${manifestSource}`
+            );
+          }
         }
-
 
 
       } catch (error) {

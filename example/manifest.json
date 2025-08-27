@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "动态配置的扩展名称",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "这是一个通过构建时动态修改的扩展描述",
   "permissions": [
     "storage",

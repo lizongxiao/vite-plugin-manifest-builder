@@ -8,5 +8,8 @@
   },
   "devDependencies": {
     "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "vite-plugin-manifest-builder": "^1.0.4"
   }
-} 
+}

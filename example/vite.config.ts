@@ -1,5 +1,5 @@
 import { defineConfig, type Plugin } from "vite";
-import { manifestBuilderPlugin } from "../src";
+import { manifestBuilderPlugin } from "vite-plugin-manifest-builder";
 
 export default defineConfig({
   plugins: [
