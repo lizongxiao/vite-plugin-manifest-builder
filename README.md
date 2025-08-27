@@ -1,8 +1,50 @@
-# vite-plugin-manifest-builder
+
+### 简介
+
+`vite-plugin-manifest-builder` 是一个强大的 Vite 插件，用于动态构建和修改 Chrome 扩展的 `manifest.json` 文件，支持自动 CSS 注入和字段覆盖。
+
+### 主要特性
+
+- 🎯 **自动 CSS 注入**: 自动将 CSS 文件注入到 content scripts 中
+- 🔧 **动态清单构建**: 在构建过程中动态构建 manifest.json
+- 🎨 **CSS 模式匹配**: 支持自定义 CSS 文件模式匹配
+- 📝 **字段覆盖**: 使用自定义值覆盖任何清单字段
+- 🎯 **定向注入**: 仅将 CSS 注入到特定的 content scripts
+- 🐛 **调试模式**: 全面的调试和日志记录
+- 📦 **TypeScript 支持**: 完整的 TypeScript 支持和类型定义
+- 🔄 **模块支持**: 支持 CommonJS 和 ESM
+
+### 快速开始
+
+```typescript
+import { defineConfig } from "vite";
+import { manifestBuilderPlugin } from "vite-plugin-manifest-builder";
+
+export default defineConfig({
+  plugins: [
+    manifestBuilderPlugin({
+      debug: true,
+      cssPattern: /\.(css|scss|less)$/,
+      targetScripts: ["content-scripts"],
+      manifestOverrides: {
+        description: "一个动态配置的 Chrome 扩展",
+        version: "1.0.1",
+        name: "我的扩展",
+      },
+    }),
+  ],
+});
+```
+
+更多详细信息请参考英文文档部分。
+
 
 [![npm version](https://img.shields.io/npm/v/vite-plugin-manifest-builder.svg)](https://www.npmjs.com/package/vite-plugin-manifest-builder)
 [![npm downloads](https://img.shields.io/npm/dm/vite-plugin-manifest-builder.svg)](https://www.npmjs.com/package/vite-plugin-manifest-builder)
 [![License](https://img.shields.io/npm/l/vite-plugin-manifest-builder.svg)](https://github.com/lizongxiao/vite-plugin-manifest-builder/blob/main/LICENSE)
+
+
+# vite-plugin-manifest-builder
 
 A powerful Vite plugin for dynamically building and modifying Chrome Extension `manifest.json` files with automatic CSS injection and field overrides.
 
@@ -304,43 +346,5 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-## 中文文档
 
-### 简介
 
-`vite-plugin-manifest-builder` 是一个强大的 Vite 插件，用于动态构建和修改 Chrome 扩展的 `manifest.json` 文件，支持自动 CSS 注入和字段覆盖。
-
-### 主要特性
-
-- 🎯 **自动 CSS 注入**: 自动将 CSS 文件注入到 content scripts 中
-- 🔧 **动态清单构建**: 在构建过程中动态构建 manifest.json
-- 🎨 **CSS 模式匹配**: 支持自定义 CSS 文件模式匹配
-- 📝 **字段覆盖**: 使用自定义值覆盖任何清单字段
-- 🎯 **定向注入**: 仅将 CSS 注入到特定的 content scripts
-- 🐛 **调试模式**: 全面的调试和日志记录
-- 📦 **TypeScript 支持**: 完整的 TypeScript 支持和类型定义
-- 🔄 **模块支持**: 支持 CommonJS 和 ESM
-
-### 快速开始
-
-```typescript
-import { defineConfig } from "vite";
-import { manifestBuilderPlugin } from "vite-plugin-manifest-builder";
-
-export default defineConfig({
-  plugins: [
-    manifestBuilderPlugin({
-      debug: true,
-      cssPattern: /\.(css|scss|less)$/,
-      targetScripts: ["content-scripts"],
-      manifestOverrides: {
-        description: "一个动态配置的 Chrome 扩展",
-        version: "1.0.1",
-        name: "我的扩展",
-      },
-    }),
-  ],
-});
-```
-
-更多详细信息请参考英文文档部分。
