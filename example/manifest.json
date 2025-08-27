@@ -1,17 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Example Extension",
-  "version": "1.0.0",
-  "description": "An example Chrome extension with version auto-increment",
+  "name": "动态配置的扩展名称",
+  "version": "1.0.1",
+  "description": "这是一个通过构建时动态修改的扩展描述",
   "permissions": [
     "storage",
     "activeTab"
   ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content-scripts.js"],
-      "css": []
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content-scripts.js"
+      ],
+      "css": [
+        "css/main.css"
+      ]
     }
   ],
   "background": {
@@ -26,4 +32,4 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   }
-} 
+}

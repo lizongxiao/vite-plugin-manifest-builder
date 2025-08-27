@@ -15,6 +15,7 @@ export default defineConfig({
       autoIncrementVersion: true,
       versionIncrementType: 'patch',
       versionIncrementStep: 1,
+      updateSourceFile: true,
     }) as Plugin,
   ],
   build: {

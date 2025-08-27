@@ -25,7 +25,8 @@
     "test:version": "node test/version-increment.test.js",
     "test:integration": "node test/integration-test.js",
     "test:manual": "node test/manual-test.js",
-    "test:all": "npm run test:version && npm run test:integration && npm run test:manual"
+    "test:persistence": "node test/version-persistence-test.js",
+    "test:all": "npm run test:version && npm run test:integration && npm run test:manual && npm run test:persistence"
   },
   "keywords": [
     "vite",

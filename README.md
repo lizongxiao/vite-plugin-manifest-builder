@@ -35,7 +35,8 @@ export default defineConfig({
       // 启用版本号自增
       autoIncrementVersion: true,
       versionIncrementType: 'patch',
-      versionIncrementStep: 1
+      versionIncrementStep: 1,
+      updateSourceFile: true // 更新源文件
     }),
   ],
 });
@@ -112,7 +113,8 @@ export default defineConfig({
       // Enable version auto-increment
       autoIncrementVersion: true,
       versionIncrementType: 'patch',
-      versionIncrementStep: 1
+      versionIncrementStep: 1,
+      updateSourceFile: true // Update source file
     }),
   ],
 });
@@ -236,6 +238,17 @@ manifestBuilderPlugin({
 });
 ```
 
+#### `updateSourceFile?: boolean`
+
+Whether to update the source manifest file after version increment. Default: `true`
+
+```typescript
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  updateSourceFile: true, // Update source file (recommended)
+});
+```
+
 ## 🔄 How It Works
 
 1. **Build Phase**: Plugin runs during Vite's build process
@@ -341,6 +354,27 @@ manifestBuilderPlugin({
   autoIncrementVersion: true,
   versionIncrementType: 'patch',
   versionIncrementStep: 2,
+});
+
+// Example 5: Disable source file update
+// Only updates output file, source file remains unchanged
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  updateSourceFile: false,
+});
+```
+
+### Version Persistence
+
+The plugin automatically updates the source manifest file after version increment to ensure version numbers persist across builds:
+
+```typescript
+// Build 1: 1.0.0 -> 1.0.1 (source file updated)
+// Build 2: 1.0.1 -> 1.0.2 (source file updated)
+// Build 3: 1.0.2 -> 1.0.3 (source file updated)
+manifestBuilderPlugin({
+  autoIncrementVersion: true,
+  updateSourceFile: true, // Ensures version persistence
 });
 ```
 

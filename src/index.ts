@@ -21,6 +21,8 @@ export interface ManifestBuilderPluginOptions {
   versionIncrementStep?: number;
   /** 版本号自增类型：'patch' | 'minor' | 'major'，默认为 'patch' */
   versionIncrementType?: 'patch' | 'minor' | 'major';
+  /** 是否更新源文件，默认为 true */
+  updateSourceFile?: boolean;
 }
 
 /**
@@ -103,6 +105,7 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
     autoIncrementVersion = false,
     versionIncrementStep = 1,
     versionIncrementType = 'patch',
+    updateSourceFile = true,
   } = options;
 
   return {
@@ -139,6 +142,7 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
         const manifest = JSON.parse(manifestContent);
 
         // 处理版本号自增
+        let versionUpdated = false;
         if (autoIncrementVersion && manifest.version) {
           const oldVersion = manifest.version;
           const newVersion = incrementVersion(oldVersion, versionIncrementType, versionIncrementStep);
@@ -150,6 +154,7 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
           }
           
           manifest.version = newVersion;
+          versionUpdated = true;
           
           // 如果 manifestOverrides 中也有 version，则覆盖它
           if (manifestOverrides.version) {
@@ -293,6 +298,22 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
             );
           }
         }
+
+        // 如果版本号被更新且启用了源文件更新，则更新源文件
+        if (versionUpdated && updateSourceFile && fs.default.existsSync(manifestSource)) {
+          if (debug) {
+            console.log(
+              `[vite-plugin-manifest-builder] 更新源文件版本号: ${manifestSource}`
+            );
+          }
+          fs.default.writeFileSync(
+            manifestSource,
+            JSON.stringify(manifest, null, 2)
+          );
+        }
+
+
+
       } catch (error) {
         console.error(
           "[vite-plugin-manifest-builder] 处理 manifest.json 时发生错误:",
