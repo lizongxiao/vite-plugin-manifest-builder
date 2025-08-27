@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-manifest-builder",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A Vite plugin for dynamically building and modifying Chrome Extension manifest.json with CSS injection and field overrides",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
