@@ -23,6 +23,8 @@ export interface ManifestBuilderPluginOptions {
   versionIncrementType?: 'patch' | 'minor' | 'major';
   /** 是否更新源文件，默认为 true */
   updateSourceFile?: boolean;
+  /** 指定要更新到源文件的字段，默认为 ['version'] */
+  updateSourceFields?: string[];
 }
 
 /**
@@ -106,6 +108,7 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
     versionIncrementStep = 1,
     versionIncrementType = 'patch',
     updateSourceFile = true,
+    updateSourceFields = ['version'],
   } = options;
 
   return {
@@ -327,10 +330,41 @@ export function manifestBuilderPlugin(options: ManifestBuilderPluginOptions = {}
               `[vite-plugin-manifest-builder] 更新源文件版本号: ${manifestSource}`
             );
           }
-          fs.default.writeFileSync(
-            manifestSource,
-            JSON.stringify(manifest, null, 2)
-          );
+          
+          // 读取源文件
+          const sourceContent = fs.default.readFileSync(manifestSource, "utf-8");
+          const sourceManifest = JSON.parse(sourceContent);
+          
+          // 只更新指定的字段
+          let hasChanges = false;
+          updateSourceFields.forEach(field => {
+            if (manifest[field] !== undefined && manifest[field] !== sourceManifest[field]) {
+              sourceManifest[field] = manifest[field];
+              hasChanges = true;
+              if (debug) {
+                console.log(
+                  `[vite-plugin-manifest-builder] 更新源文件字段: ${field} = ${manifest[field]}`
+                );
+              }
+            }
+          });
+          
+          // 只有当有变化时才写回文件
+          if (hasChanges) {
+            fs.default.writeFileSync(
+              manifestSource,
+              JSON.stringify(sourceManifest, null, 2)
+            );
+            if (debug) {
+              console.log(
+                `[vite-plugin-manifest-builder] 源文件更新完成`
+              );
+            }
+          } else if (debug) {
+            console.log(
+              `[vite-plugin-manifest-builder] 源文件无需更新，所有字段值相同`
+            );
+          }
         } else if (debug) {
           if (!versionUpdated) {
             console.log(
